@@ -4,7 +4,7 @@ namespace CheckServiceStatus.Services;
 
 public static class TcpServiceHelper
 {
-       public static async Task<bool> CheckTcpService(ServiceModel service)
+       public static async Task<ServiceResponse> CheckTcpService(ServiceModel service)
     {
         if (service == null || string.IsNullOrEmpty(service.ServicePath))
         {
@@ -24,13 +24,21 @@ public static class TcpServiceHelper
             try
             {
                 await tcpClient.ConnectAsync(hostname, port);
-                Console.WriteLine($"TCP connection to {service.ServiceName} ({hostname}:{port}) successful.");
-                return true;
+                Logs.WriteToLog($"TCP connection to {service.ServiceName} ({hostname}:{port}) successful.");
+                return new ServiceResponse()
+                {
+                    IsSuccess = true,
+                    ErrorMessage = "TCP connection successful"
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"TCP connection to {service.ServiceName} ({hostname}:{port}) failed: {ex.Message}");
-                return false;
+                Logs.WriteToLog($"TCP connection to {service.ServiceName} ({hostname}:{port}) failed: {ex.Message}");
+                return new ServiceResponse()
+                {
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
+                };
             }
         }
     }

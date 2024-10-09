@@ -4,7 +4,7 @@ namespace CheckServiceStatus.Services;
 
 public static class HttpServiceHelper
 {
-   internal static async Task<bool> CheckHttpService(ServiceModel service)
+   internal static async Task<ServiceResponse> CheckHttpService(ServiceModel service)
     {
         if (service == null || string.IsNullOrEmpty(service.ServicePath))
         {
@@ -41,7 +41,11 @@ public static class HttpServiceHelper
                         case SuccessExpressionType.ResponseCode:
                             if (int.TryParse(service.SuccessExpression.SuccessValue, out int expectedCode))
                             {
-                                return (int)response.StatusCode == expectedCode;
+                                return new ServiceResponse()
+                                {
+                                    IsSuccess = (int)response.StatusCode == expectedCode,
+                                    ErrorMessage = response.StatusCode.ToString()
+                                };
                             }
                             break;
                         case SuccessExpressionType.Contains:
@@ -49,17 +53,29 @@ public static class HttpServiceHelper
                         case SuccessExpressionType.EndsWith:
                         case SuccessExpressionType.Regex:
                             var content = await response.Content.ReadAsStringAsync();
-                            return ServiceHelper.CheckContentExpression(content, service.SuccessExpression);
+                            return new ServiceResponse()
+                            {
+                                IsSuccess = ServiceHelper.CheckContentExpression(content, service.SuccessExpression),
+                                ErrorMessage = response.StatusCode.ToString()
+                            };
                     }
                 }
 
-                Console.WriteLine($"HTTP request to {service.ServiceName} ({service.ServicePath}) successful. Status code: {response.StatusCode}");
-                return response.IsSuccessStatusCode;
+                Logs.WriteToLog($"HTTP request to {service.ServiceName} ({service.ServicePath}) successful. Status code: {response.StatusCode}");
+                return new ServiceResponse()
+                {
+                    IsSuccess = response.IsSuccessStatusCode,
+                    ErrorMessage = response.StatusCode.ToString()
+                };
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"HTTP request to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
-                return false;
+                Logs.WriteToLog($"HTTP request to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
+                return new ServiceResponse()
+                {
+                    IsSuccess = false,
+                    ErrorMessage = ex.Message
+                };
             }
         }
     }

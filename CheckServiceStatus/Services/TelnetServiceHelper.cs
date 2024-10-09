@@ -5,7 +5,7 @@ namespace CheckServiceStatus.Services;
 
 public static class TelnetServiceHelper
 {
-     internal static async Task<bool> CheckTelnetService(ServiceModel service)
+     internal static async Task<ServiceResponse> CheckTelnetService(ServiceModel service)
     {
         try
         {
@@ -21,22 +21,38 @@ public static class TelnetServiceHelper
                     var buffer = new byte[256];
                     var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
                     var response = System.Text.Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    return ServiceHelper.CheckContentExpression(response, service.SuccessExpression);
+                    return new ServiceResponse()
+                    {
+                        IsSuccess = ServiceHelper.CheckContentExpression(response, service.SuccessExpression),
+                        ErrorMessage = response
+                    };
                 }
 
-                Console.WriteLine($"Telnet connection to {service.ServiceName} ({service.ServicePath}) successful.");
-                return true;
+                Logs.WriteToLog($"Telnet connection to {service.ServiceName} ({service.ServicePath}) successful.");
+                return new ServiceResponse()
+                {
+                    IsSuccess = true,
+                    ErrorMessage = "Telnet connection successful"
+                };
             }
             else
             {
-                Console.WriteLine($"Telnet connection to {service.ServiceName} ({service.ServicePath}) failed.");
-                return false;
+                Logs.WriteToLog($"Telnet connection to {service.ServiceName} ({service.ServicePath}) failed.");
+                return new ServiceResponse()
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "Telnet connection failed"
+                };
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Telnet connection to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
-            return false;
+            Logs.WriteToLog($"Telnet connection to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
+            return new ServiceResponse()
+            {
+                IsSuccess = false,
+                ErrorMessage = ex.Message
+            };
         }
     }
 }

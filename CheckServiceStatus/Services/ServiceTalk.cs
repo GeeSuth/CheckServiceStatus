@@ -5,9 +5,9 @@ namespace CheckServiceStatus.Services;
 public class ServiceTalk
 {
 
-    public Task<bool> CheckServiceStatus(ServiceModel service)
+    public Task<ServiceResponse> CheckServiceStatus(ServiceModel service)
     {
-        Console.WriteLine($"Service Name: {service.ServiceName}, Communication Type: {service.CommunicationType}");
+        Logs.WriteToLog($"Service Name: {service.ServiceName}, Communication Type: {service.CommunicationType}");
         switch (service.CommunicationType)
         {
             case CommunicationType.Http:

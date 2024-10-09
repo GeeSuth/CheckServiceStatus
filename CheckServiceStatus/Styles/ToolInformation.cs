@@ -1,11 +1,13 @@
 
+using Spectre.Console;
+
 namespace CheckServiceStatus.Styles;
 
 public static  class ToolInformation
 {
-    public static void PrintToolInformation()
+    public static void PrintToolOwner()
     {
-        Console.WriteLine(@"
+        AnsiConsole.Markup(@"[green]
                                                                       
  @@@@@@@@  @@@@@@@@  @@@@@@@@   @@@@@@   @@@  @@@  @@@@@@@  @@@  @@@  
 @@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@   @@@  @@@  @@@@@@@  @@@  @@@  
@@ -18,13 +20,21 @@ public static  class ToolInformation
  ::: ::::   :: ::::   :: ::::  :::: ::   ::::: ::     ::    ::   :::  
  :: :: :   : :: ::   : :: ::   :: : :     : :  :      :      :   : :  
                                                                       
-   ____ _               _     ____  _        _   
+[/]
+");}
+
+
+public static void PrintToolInformation()
+{
+    AnsiConsole.Markup(@"[yellow1]
+       ____ _               _     ____  _        _   
   / ___| |__   ___  ___| | __/ ___|| |_ __ _| |_ _   _ ___
  | |   | '_ \ / _ \/ __| |/ /\___ \| __/ _` | __| | | / __|
  | |___| | | |  __/ (__|   <  ___) | || (_| | |_| |_| \__ \
   \____|_| |_|\___|\___|_|\_\|____/ \__\__,_|\__|\__,_|___/
-
+    [/]
 ");
+}
 
-    }
+
 }

@@ -6,9 +6,10 @@ using CheckServiceStatus.Styles;
 using Spectre.Console;
 
 
+ToolInformation.PrintToolOwner();
 ToolInformation.PrintToolInformation();
 
-AnsiConsole.Markup("[underline red]Hello[/] World!");
+//AnsiConsole.Markup("[underline red]Hello[/] World!");
 
 var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "ServiceList.json"));
 var options = new System.Text.Json.JsonSerializerOptions
@@ -20,21 +21,72 @@ try
 {
     var services = System.Text.Json.JsonSerializer.Deserialize<List<ServiceModel>>(json, options);
     var serviceTalk = new ServiceTalk();
-    foreach (var service in services)
-    {
-        try
+    var table = new Table()
+        .AddColumn("#", c => c.Width(3))
+        .AddColumn("Service Name")
+        .AddColumn("Status")
+        .AddColumn("Communication Type")
+        .AddColumn("Path")
+        .AddColumn("Time Spent")
+        .AddColumn("More");
+
+    table.Border(TableBorder.Rounded);
+
+    await AnsiConsole.Live(table)
+        .StartAsync(async ctx =>
         {
-            await serviceTalk.CheckServiceStatus(service);
-        }
-        catch (NotImplementedException ex)
-        {
-            Console.WriteLine($"NOT_SUPPORT Service {service.ServiceName}: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"{service.ServiceName}: {ex.Message}");
-        }
-    }
+            int serviceIndex = 1;
+            foreach (var service in services)
+            {
+                try
+                {
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                    var result = await serviceTalk.CheckServiceStatus(service);
+                    stopwatch.Stop();
+                    var timeSpent = stopwatch.Elapsed;
+                    var status = result.IsSuccess ? "UP" : "DOWN";
+                    var color = result.IsSuccess ? "green" : "red";
+
+                    table.AddRow(
+                        new Markup($"[bold]{serviceIndex}[/]"),
+                        new Markup($"[bold]{service.ServiceName}[/]"),
+                        new Markup($"[{color}][bold]{status}[/][/]"),
+                        new Markup($"[italic]{service.CommunicationType}[/]"),
+                        new Markup($"[underline]{service.ServicePath}[/]"),
+                        new Markup($"[dim]{timeSpent.ToString(@"mm\:ss\.fff")}[/]"),
+                        new Markup($"[invert]{result.ErrorMessage}[/]")
+                    );
+                }
+                catch (NotImplementedException ex)
+                {
+                    table.AddRow(
+                        new Markup($"[bold]{serviceIndex}[/]"),
+                        new Markup($"[bold]{service.ServiceName}[/]"),
+                        new Markup("[yellow]NOT_SUPPORTED[/]"),
+                        new Markup($"[italic]{service.CommunicationType}[/]"),
+                        new Markup($"[underline]{service.ServicePath}[/]"),
+                        new Markup("N/A"),
+                        new Markup(ex.Message)
+                    );
+                }
+                catch (Exception ex)
+                {
+                    table.AddRow(
+                        new Markup($"[bold]{serviceIndex}[/]"),
+                        new Markup($"[bold]{service.ServiceName}[/]"),
+                        new Markup("[red]ERROR[/]"),
+                        new Markup($"[italic]{service.CommunicationType}[/]"),
+                        new Markup($"[underline]{service.ServicePath}[/]"),
+                        new Markup("N/A"),
+                        new Markup(ex.Message)
+                    );
+                }
+
+                ctx.Refresh();
+                //await Task.Delay(100); // Add a small delay to make the live update visible
+                serviceIndex++;
+            }
+        });
 }
 catch (System.Text.Json.JsonException ex)
 {

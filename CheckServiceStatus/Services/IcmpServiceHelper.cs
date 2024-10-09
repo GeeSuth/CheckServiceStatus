@@ -4,7 +4,7 @@ namespace CheckServiceStatus.Services;
 
 public static class IcmpServiceHelper
 {
-       internal static async Task<bool> CheckIcmpService(ServiceModel service)
+       internal static async Task<ServiceResponse> CheckIcmpService(ServiceModel service)
     {
         try
         {
@@ -19,24 +19,40 @@ public static class IcmpServiceHelper
                     case SuccessExpressionType.ResponseCode:
                         if (int.TryParse(service.SuccessExpression.SuccessValue, out int expectedCode))
                         {
-                            return (int)reply.Status == expectedCode;
+                            return new ServiceResponse()
+                            {
+                                IsSuccess = (int)reply.Status == expectedCode,
+                                ErrorMessage = reply.Status.ToString()
+                            };
                         }
                         break;
                     case SuccessExpressionType.Contains:
                     case SuccessExpressionType.StartsWith:
                     case SuccessExpressionType.EndsWith:
                     case SuccessExpressionType.Regex:
-                        return ServiceHelper.CheckContentExpression(reply.Status.ToString(), service.SuccessExpression);
+                        return new ServiceResponse()
+                        {
+                            IsSuccess = ServiceHelper.CheckContentExpression(reply.Status.ToString(), service.SuccessExpression),
+                            ErrorMessage = reply.Status.ToString()
+                        };
                 }
             }
 
-            Console.WriteLine($"ICMP request to {service.ServiceName} ({service.ServicePath}) successful. Status: {reply.Status}");
-            return reply.Status == System.Net.NetworkInformation.IPStatus.Success;
+            Logs.WriteToLog($"ICMP request to {service.ServiceName} ({service.ServicePath}) successful. Status: {reply.Status}");
+            return new ServiceResponse()
+            {
+                IsSuccess = reply.Status == System.Net.NetworkInformation.IPStatus.Success,
+                ErrorMessage = reply.Status.ToString()
+            };
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"ICMP request to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
-            return false;
+            Logs.WriteToLog($"ICMP request to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
+            return new ServiceResponse()
+            {
+                IsSuccess = false,
+                ErrorMessage = ex.Message
+            };
         }
     }
 }

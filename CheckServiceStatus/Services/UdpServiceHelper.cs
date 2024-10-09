@@ -6,7 +6,7 @@ namespace CheckServiceStatus.Services;
 
 public static class UdpServiceHelper
 {
-     internal static async Task<bool> CheckUdpService(ServiceModel service)
+     internal static async Task<ServiceResponse> CheckUdpService(ServiceModel service)
     {
         try
         {
@@ -29,22 +29,38 @@ public static class UdpServiceHelper
 
                 if (service.SuccessExpression != null)
                 {
-                    return ServiceHelper.CheckContentExpression(response, service.SuccessExpression);
+                    return new ServiceResponse()
+                    {
+                        IsSuccess = ServiceHelper.CheckContentExpression(response, service.SuccessExpression),
+                        ErrorMessage = response
+                    };
                 }
 
-                Console.WriteLine($"UDP connection to {service.ServiceName} ({service.ServicePath}) successful.");
-                return true;
+                Logs.WriteToLog($"UDP connection to {service.ServiceName} ({service.ServicePath}) successful.");
+                return new ServiceResponse()
+                {
+                    IsSuccess = true,
+                    ErrorMessage = "UDP connection successful"
+                };
             }
             else
             {
-                Console.WriteLine($"UDP connection to {service.ServiceName} ({service.ServicePath}) timed out.");
-                return false;
+                Logs.WriteToLog($"UDP connection to {service.ServiceName} ({service.ServicePath}) timed out.");
+                return new ServiceResponse()
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "UDP connection timed out"
+                };
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"UDP connection to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
-            return false;
+            Logs.WriteToLog($"UDP connection to {service.ServiceName} ({service.ServicePath}) failed: {ex.Message}");
+            return new ServiceResponse()
+            {
+                IsSuccess = false,
+                ErrorMessage = ex.Message
+            };
         }
     }
 }
