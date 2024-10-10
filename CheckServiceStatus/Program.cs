@@ -46,9 +46,9 @@ try
                         new Markup($"[bold]{service.ServiceName}[/]"),
                         new Markup($"[{color}][bold]{status}[/][/]"),
                         new Markup($"[italic]{service.CommunicationType}[/]"),
-                        new Markup($"[underline]{service.ServicePath}[/]"),
+                        new Markup($"[underline]{(service.ServiceRequired?.CommunicationMethod != CommunicationMethod.Basic ? service.ServiceRequired?.CommunicationMethod.ToString()+"@" : "")}{service.ServicePath}[/]"),
                         new Markup($"[dim]{timeSpent.ToString(@"mm\:ss\.fff")}[/]"),
-                        new Markup($"[invert]{result.ErrorMessage}[/]")
+                        new Markup($"{result.ErrorMessage}")
                     );
                 }
                 catch (NotImplementedException ex)

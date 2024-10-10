@@ -1,0 +1,62 @@
+[
+	{
+		"ServiceName": "API PRODUCTION",
+		"CommunicationType": "Http",
+		"ServicePath": "https://v1.com/check",
+		"SuccessExpression": {
+			"SuccessExpressionType": "ResponseCode",
+			"SuccessValue": "200"
+		},
+		"Priority": null,
+		"AuthenticationType": null,
+		"AuthenticationValue": null,
+		"Timeout": 30
+	},
+	{
+		"ServiceName": "API STAGE",
+		"CommunicationType": "Http",
+		"ServicePath": "https://google.com",
+		"SuccessExpression": {
+			"SuccessExpressionType": "ResponseCode",
+			"SuccessValue": "200"
+		},
+		"Priority": null,
+		"AuthenticationType": null,
+		"AuthenticationValue": null,
+		"Timeout": 30
+	},
+	{
+		"ServiceName": "STAGE - TEST POST CONTAINS",
+		"CommunicationType": "Http",
+		"ServicePath": "https://v0.com/check1",
+		"SuccessExpression": {
+			"SuccessExpressionType": "Contains",
+			"SuccessValue": "Healthy"
+		},
+		"Priority": null,
+		"AuthenticationType": null,
+		"AuthenticationValue": null,
+		"Timeout": 30,
+		"ServiceRequired": {
+			"CommunicationMethod": "POST",
+			"RequiredValue": "{}"
+		}
+	},
+	{
+		"ServiceName": "TEST POST 1",
+		"CommunicationType": "Http",
+		"ServicePath": "https://x01.com/check",
+		"SuccessExpression": {
+			"SuccessExpressionType": "ResponseCode",
+			"SuccessValue": "200"
+		},
+		"Priority": null,
+		"AuthenticationType": null,
+		"AuthenticationValue": null,
+		"Timeout": 30,
+		"ServiceRequired": {
+			"CommunicationMethod": "POST",
+			"RequiredValue": "{}"
+		}
+	}
+]
