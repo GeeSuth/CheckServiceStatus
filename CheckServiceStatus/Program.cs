@@ -2,6 +2,7 @@
 using System.Net.Http.Json;
 using CheckServiceStatus.Models;
 using CheckServiceStatus.Services;
+using CheckServiceStatus.Services.FileServices;
 using CheckServiceStatus.Styles;
 using Spectre.Console;
 
@@ -9,17 +10,10 @@ using Spectre.Console;
 ToolInformation.PrintToolOwner();
 ToolInformation.PrintToolInformation();
 
-//AnsiConsole.Markup("[underline red]Hello[/] World!");
+var services = JsonFileService.ReadJsonFile();
 
-var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "ServiceList.json"));
-var options = new System.Text.Json.JsonSerializerOptions
-{
-    PropertyNameCaseInsensitive = true,
-    Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
-};
 try
 {
-    var services = System.Text.Json.JsonSerializer.Deserialize<List<ServiceModel>>(json, options);
     var serviceTalk = new ServiceTalk();
     var table = new Table()
         .AddColumn("#", c => c.Width(3))
@@ -92,7 +86,7 @@ catch (System.Text.Json.JsonException ex)
 {
     Console.WriteLine($"Error deserializing JSON: {ex.Message}");
     Console.WriteLine("JSON content:");
-    Console.WriteLine(json);
+    Console.WriteLine(JsonFileService.ReadJsonFile());
 }
 
 Console.ReadLine();
