@@ -10,6 +10,27 @@ public class ServiceModel
     public AuthenticationType? AuthenticationType { get; set; }
     public string? AuthenticationValue { get; set; }
     public int? Timeout { get; set; }
+
+    public ServiceRequired? ServiceRequired { get; set; } = new ServiceRequired();
+}
+
+public class ServiceRequired
+{
+    public ServiceRequired()
+    {
+        this.CommunicationMethod = CommunicationMethod.Basic;
+        this.RequiredValue = "";
+    }
+    public CommunicationMethod CommunicationMethod { get; set; }
+    public string? RequiredValue { get; set; }
+}
+
+public enum CommunicationMethod
+{
+    Basic,
+    Get,
+    Post,
+    Options
 }
 public enum CommunicationType
 {

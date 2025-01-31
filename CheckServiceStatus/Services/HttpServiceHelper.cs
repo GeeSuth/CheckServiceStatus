@@ -32,7 +32,16 @@ public static class HttpServiceHelper
                     }
                 }
 
-                var response = await httpClient.GetAsync(service.ServicePath);
+                HttpResponseMessage response;
+                if (service.ServiceRequired?.CommunicationMethod == CommunicationMethod.Post)
+                {
+                    var content = new StringContent(service.ServiceRequired.RequiredValue ?? "", System.Text.Encoding.UTF8, "application/json");
+                    response = await httpClient.PostAsync(service.ServicePath, content);
+                }
+                else
+                {
+                    response = await httpClient.GetAsync(service.ServicePath);
+                }
 
                 if (service.SuccessExpression != null)
                 {
@@ -53,10 +62,12 @@ public static class HttpServiceHelper
                         case SuccessExpressionType.EndsWith:
                         case SuccessExpressionType.Regex:
                             var content = await response.Content.ReadAsStringAsync();
+                            var isSuccess = ServiceHelper.CheckContentExpression(content, service.SuccessExpression);
                             return new ServiceResponse()
                             {
-                                IsSuccess = ServiceHelper.CheckContentExpression(content, service.SuccessExpression),
-                                ErrorMessage = response.StatusCode.ToString()
+                                IsSuccess = isSuccess,
+                                ErrorMessage = isSuccess ? response.StatusCode.ToString() :
+                                    $"{service.SuccessExpression.SuccessExpressionType} not matched: {service.SuccessExpression.SuccessValue}"
                             };
                     }
                 }
