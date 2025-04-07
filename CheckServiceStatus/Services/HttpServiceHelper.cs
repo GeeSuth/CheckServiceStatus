@@ -15,6 +15,14 @@ public static class HttpServiceHelper
         {
             try
             {
+                if (service.customHeaders != null && service.customHeaders.Length >= 1) 
+                { 
+                    foreach (var header in service.customHeaders)
+                    {
+                        httpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.HeaderKey, header.HeaderValue);
+                    }
+                }
+
                 httpClient.Timeout = TimeSpan.FromSeconds(service.Timeout ?? 30);
 
                 if (service.AuthenticationType.HasValue)

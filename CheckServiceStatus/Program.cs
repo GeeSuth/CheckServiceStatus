@@ -34,6 +34,20 @@ try
             {
                 try
                 {
+                    if(!service.Enabled)
+                    {
+                        table.AddRow(
+                            new Markup($"[bold]{serviceIndex}[/]"),
+                            new Markup($"[bold]{service.ServiceName}[/]"),
+                            new Markup($"[Yellow][bold]Skipped[/][/]"),
+                            new Markup($"[italic]{service.CommunicationType}[/]"),
+                            new Markup($"[underline]{(service.ServiceRequired?.CommunicationMethod != CommunicationMethod.Basic ? service.ServiceRequired?.CommunicationMethod.ToString() + "@" : "")}{service.ServicePath}[/]"),
+                            new Markup($"-"),
+                            new Markup($"Service Not Enabled, if you want to scan it please ensure to make this service enabled from JSON file.")
+                        );
+                        continue;
+                    }
+
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
                     var result = await serviceTalk.CheckServiceStatus(service);
                     stopwatch.Stop();

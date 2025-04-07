@@ -11,7 +11,10 @@ public class ServiceModel
     public string? AuthenticationValue { get; set; }
     public int? Timeout { get; set; }
 
+    public CustomHeader[] customHeaders { get; set; } = new CustomHeader[0];
     public ServiceRequired? ServiceRequired { get; set; } = new ServiceRequired();
+
+    public bool Enabled { get; set; } = true;
 }
 
 public class ServiceRequired
@@ -25,6 +28,11 @@ public class ServiceRequired
     public string? RequiredValue { get; set; }
 }
 
+public class CustomHeader
+{
+    public string HeaderKey { get; set; } = "Header-X";
+    public string? HeaderValue { get; set; }
+}
 public enum CommunicationMethod
 {
     Basic,
