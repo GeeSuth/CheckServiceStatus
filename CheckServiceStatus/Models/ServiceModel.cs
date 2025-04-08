@@ -15,6 +15,8 @@ public class ServiceModel
     public ServiceRequired? ServiceRequired { get; set; } = new ServiceRequired();
 
     public bool Enabled { get; set; } = true;
+
+    public bool writeScanLogs { get; set; } = true;
 }
 
 public class ServiceRequired

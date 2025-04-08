@@ -14,6 +14,7 @@ var services = JsonFileService.ReadJsonFile();
 
 try
 {
+
     var serviceTalk = new ServiceTalk();
     var table = new Table()
         .AddColumn("#", c => c.Width(3))
@@ -26,6 +27,9 @@ try
 
     table.Border(TableBorder.Rounded);
 
+
+
+scan:
     await AnsiConsole.Live(table)
         .StartAsync(async ctx =>
         {
@@ -95,6 +99,26 @@ try
                 serviceIndex++;
             }
         });
+
+    AnsiConsole.Write(new Markup("[bold]Finished Scan!![/]", new Style(Color.White, Color.Green, new Decoration())));
+    AnsiConsole.WriteLine();
+    AnsiConsole.Write(new Markup("[yellow] ** If you want more details, please go to logs file.[/]"));
+
+    AnsiConsole.WriteLine();
+
+    
+    
+    while(true)
+    {
+        if (AnsiConsole.Ask<string>("\n\r Want to scan Again? write / and press Enter? ") == "/")
+        {
+            services = JsonFileService.ReadJsonFile();
+            table.Rows.Clear();
+            goto scan;
+        }
+    }
+
+
 }
 catch (System.Text.Json.JsonException ex)
 {

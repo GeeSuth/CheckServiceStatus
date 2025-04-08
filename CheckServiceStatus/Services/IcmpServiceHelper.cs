@@ -12,6 +12,11 @@ public static class IcmpServiceHelper
             var timeout = service.Timeout ?? 5000; // Default to 5 seconds if not specified
             var reply = await ping.SendPingAsync(service.ServicePath, timeout);
 
+            if (service.writeScanLogs)
+            {
+                Logs.WriteTheScan(service, reply);
+            }
+
             if (service.SuccessExpression != null)
             {
                 switch (service.SuccessExpression.SuccessExpressionType)

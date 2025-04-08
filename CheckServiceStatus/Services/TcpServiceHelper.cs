@@ -25,6 +25,10 @@ public static class TcpServiceHelper
             {
                 await tcpClient.ConnectAsync(hostname, port);
                 Logs.WriteToLog($"TCP connection to {service.ServiceName} ({hostname}:{port}) successful.");
+                if (service.writeScanLogs)
+                {
+                    Logs.WriteTheScan(service, new { TcpClientStatus = tcpClient.Connected });
+                }
                 return new ServiceResponse()
                 {
                     IsSuccess = true,

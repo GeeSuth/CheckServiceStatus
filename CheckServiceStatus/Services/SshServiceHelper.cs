@@ -14,6 +14,11 @@ public static class SshServiceHelper
 
             await Task.Run(() => client.Connect());
 
+            if (service.writeScanLogs)
+            {
+                Logs.WriteTheScan(service,  new { SshConnect= client.IsConnected });
+            }
+
             if (client.IsConnected)
             {
                 if (service.SuccessExpression != null)

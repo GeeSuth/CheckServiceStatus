@@ -15,6 +15,12 @@ public static class TelnetServiceHelper
 
             if (client.Connected)
             {
+
+                if (service.writeScanLogs)
+                {
+                    Logs.WriteTheScan(service, new { TelnetStatus = client.Connected });
+                }
+
                 if (service.SuccessExpression != null)
                 {
                     using var stream = client.GetStream();

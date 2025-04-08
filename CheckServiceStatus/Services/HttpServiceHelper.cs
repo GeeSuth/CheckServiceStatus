@@ -51,6 +51,12 @@ public static class HttpServiceHelper
                     response = await httpClient.GetAsync(service.ServicePath);
                 }
 
+
+                if(service.writeScanLogs)
+                {
+                    Logs.WriteTheScan(service, response);
+                }
+
                 if (service.SuccessExpression != null)
                 {
                     switch (service.SuccessExpression.SuccessExpressionType)
