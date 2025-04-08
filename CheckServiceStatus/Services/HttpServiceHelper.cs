@@ -52,9 +52,10 @@ public static class HttpServiceHelper
                 }
 
 
+                var responseString = await response.Content.ReadAsStringAsync();
                 if(service.writeScanLogs)
                 {
-                    Logs.WriteTheScan(service, response);
+                    Logs.WriteTheScan(service, responseString);
                 }
 
                 if (service.SuccessExpression != null)
@@ -75,7 +76,7 @@ public static class HttpServiceHelper
                         case SuccessExpressionType.StartsWith:
                         case SuccessExpressionType.EndsWith:
                         case SuccessExpressionType.Regex:
-                            var content = await response.Content.ReadAsStringAsync();
+                            var content = responseString;
                             var isSuccess = ServiceHelper.CheckContentExpression(content, service.SuccessExpression);
                             return new ServiceResponse()
                             {

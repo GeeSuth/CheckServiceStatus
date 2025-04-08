@@ -8,7 +8,10 @@ public static class Logs
     public static void WriteToLog(string message)
     {
         string logFileName = $"logs_{DateTime.Now:yyyyMMdd}.txt";
-        string logFilePath = Path.Combine(AppContext.BaseDirectory, logFileName);
+        string logFilePath = Path.Combine(AppContext.BaseDirectory, "logs" , logFileName);
+
+        if (!Directory.Exists("logs")) Directory.CreateDirectory("logs");
+
         try
         {
             using (StreamWriter writer = File.AppendText(logFilePath))
@@ -25,8 +28,13 @@ public static class Logs
 
     public static void WriteTheScan(ServiceModel serviceModel, object response)
     {
+        WriteTheScan(serviceModel, response.ToStringJson());
+    }
+
+    public static void WriteTheScan(ServiceModel serviceModel, string response)
+    {
         string logFileName = $"scan_logs_{DateTime.Now:yyyyMMdd}.txt";
-        string logFilePath = Path.Combine(AppContext.BaseDirectory, "scans" ,logFileName);
+        string logFilePath = Path.Combine(AppContext.BaseDirectory, "scans", logFileName);
 
         if (!Directory.Exists("scans")) Directory.CreateDirectory("scans");
 
@@ -36,7 +44,7 @@ public static class Logs
             {
                 writer.WriteLine($"\n\r ============================= Start Scan Service: {serviceModel.ServiceName} {DateTime.Now} ============================== \n\r" +
                     $"Outcoming: {serviceModel.ToStringJson()}\n\r - - - - - - - - - - - - - - - - - \n\r" +
-                    $"InComing: {response.ToStringJson()}\n\r " +
+                    $"InComing: {response}\n\r " +
                     $"=================================== Finished Scan Service: {serviceModel.ServiceName} ================================================ ");
             }
         }

@@ -6,9 +6,14 @@ using CheckServiceStatus.Services.FileServices;
 using CheckServiceStatus.Styles;
 using Spectre.Console;
 
-
+bool forcementScan = false;
 ToolInformation.PrintToolOwner();
 ToolInformation.PrintToolInformation();
+
+AnsiConsole.Write(new Markup("Version: v2025.04.08 \n\r", new Style(Color.White)));
+
+
+
 
 var services = JsonFileService.ReadJsonFile();
 
@@ -33,12 +38,14 @@ scan:
     await AnsiConsole.Live(table)
         .StartAsync(async ctx =>
         {
-            int serviceIndex = 1;
+            int serviceIndex = 0;
             foreach (var service in services)
             {
+                serviceIndex++;
+
                 try
                 {
-                    if(!service.Enabled)
+                    if(!service.Enabled && !forcementScan)
                     {
                         table.AddRow(
                             new Markup($"[bold]{serviceIndex}[/]"),
@@ -47,7 +54,7 @@ scan:
                             new Markup($"[italic]{service.CommunicationType}[/]"),
                             new Markup($"[underline]{(service.ServiceRequired?.CommunicationMethod != CommunicationMethod.Basic ? service.ServiceRequired?.CommunicationMethod.ToString() + "@" : "")}{service.ServicePath}[/]"),
                             new Markup($"-"),
-                            new Markup($"Service Not Enabled, if you want to scan it please ensure to make this service enabled from JSON file.")
+                            new Markup($"Service Not Enabled, if you want to scan it please ensure to make this service enabled from JSON file or scan with /f to force scan.")
                         );
                         continue;
                     }
@@ -96,13 +103,13 @@ scan:
 
                 ctx.Refresh();
                 //await Task.Delay(100); // Add a small delay to make the live update visible
-                serviceIndex++;
+                
             }
         });
 
     AnsiConsole.Write(new Markup("[bold]Finished Scan!![/]", new Style(Color.White, Color.Green, new Decoration())));
     AnsiConsole.WriteLine();
-    AnsiConsole.Write(new Markup("[yellow] ** If you want more details, please go to logs file.[/]"));
+    AnsiConsole.Write(new Markup("[yellow] ** If you want more details, please go to logs or scan file.[/]"));
 
     AnsiConsole.WriteLine();
 
@@ -110,10 +117,17 @@ scan:
     
     while(true)
     {
-        if (AnsiConsole.Ask<string>("\n\r Want to scan Again? write / and press Enter? ") == "/")
+        forcementScan = false;
+        var ask = AnsiConsole.Ask<string>("\n\r Want to scan Again? write / for normal scan /f for force scan and press Enter? ");
+        if (ask == "/" || ask == "/f")
         {
             services = JsonFileService.ReadJsonFile();
             table.Rows.Clear();
+
+            if(ask == "/f")
+            {
+                forcementScan = true;
+            }
             goto scan;
         }
     }
